@@ -62,7 +62,7 @@ async function identifyFallacies(userInput, hypothesis) {
       {
         role: 'system',
         content:
-          'You are a philosopher specializing in formal argumentation. The user will enter text representing an argument and the main conclusion or hypothesis of the argument. Identify any logical fallacies made in the argument to support the conclusion. Return the fallacies as a JSON array of objects with no output before or after. Each object should have a property called "type" that names the fallacy that was detected. Also, each object should have a property called "relevantExcerpts" that lists any excerpts from the argument that were relevant to that fallacy. If there are no fallacies, simply return [].'
+          'You are a philosopher specializing in formal argumentation. The user will enter text representing an argument and the main conclusion or hypothesis of the argument. Identify any logical fallacies made in the argument to support the conclusion. Format the response as a JSON array of objects. Each object should have a "type" property and a "relevantExcerpts" property that lists any excerpts from the argument that were relevant to that fallacy. If there are no fallacies, simply return [].'
       },
       { role: 'user', content: `Argument:${userInput}\nConclusion:${hypothesis}` }
     ],
@@ -99,7 +99,7 @@ export default async function (req, res) {
     console.log('evidence', evidence);
     const assumptions = await identifyAssumptions(userInput, hypothesis);
     console.log('assumptions', assumptions);
-    const fallacies = identifyFallacies(userInput, hypothesis)
+    const fallacies = await identifyFallacies(userInput, hypothesis)
     console.log('fallacies', fallacies);
 
     res.status(200).json({ result: {

@@ -5,8 +5,7 @@ import styles from './index.module.css';
 const DEMO_INPUT = [
   {
     name: 'Select demo paragraph',
-    input:
-      ""
+    input: ''
   },
   {
     name: 'Dogs in restaurants',
@@ -16,7 +15,12 @@ const DEMO_INPUT = [
   {
     name: 'Marketing strategist',
     input:
-      "The company increased our marketing budget last week, and we hired a new marketing strategist. Our lead conversion rate increased by 15% from the last week. I believe the new marketing strategist is the reason for the increase in lead conversion."
+      'The company increased our marketing budget last week, and we hired a new marketing strategist. Our lead conversion rate increased by 15% from the last week. I believe the new marketing strategist is the reason for the increase in lead conversion.'
+  },
+  {
+    name: 'Apples',
+    input:
+      "Apples are red. Apples are not red."
   },
   {
     name: 'Apples and Restaurants',
@@ -25,13 +29,57 @@ const DEMO_INPUT = [
   }
 ];
 
+export function Result(props) {
+  return (
+    <div>
+      <section>
+        <strong>Hypothesis</strong>
+        <p>{props.result.hypothesis}</p>
+      </section>
+      <section>
+        <strong>Evidence</strong>
+        <ul>
+          {props.result.evidence.map((evidence, index) => (
+            <li key={index}>{evidence}</li>
+          ))}
+        </ul>
+      </section>
+      <section>
+        <strong>Assumptions</strong>
+        <ul>
+          {props.result.assumptions.map((assumption, index) => (
+            <li key={index}>{assumption}</li>
+          ))}
+        </ul>
+      </section>
+      <section>
+        <strong>Fallacies</strong>
+        <ul>
+          {props.result.fallacies.map((fallacy, index) => (
+            <li key={index}>
+              {fallacy.type}. Relevant excerpts:
+              <ul>
+                {fallacy.relevantExcerpts.map((excerpt, index) => (
+                  <li key={index}>{excerpt}</li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  );
+}
+
 export default function Home() {
   const [userInput, setUserInput] = useState('');
-  const [result, setResult] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [result, setResult] = useState(null);
 
   async function onSubmit(event) {
     event.preventDefault();
     try {
+      setIsLoading(true);
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
@@ -53,6 +101,8 @@ export default function Home() {
       // Consider implementing your own error handling logic here
       console.error(error);
       alert(error.message);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -64,8 +114,14 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        {/* <img src="/dog.png" className={styles.icon} /> */}
         <h3>Assess logic</h3>
+        <select onChange={e => setUserInput(e.target.value)}>
+          {DEMO_INPUT.map(input => (
+            <option key={input.input} value={input.input}>
+              {input.name}
+            </option>
+          ))}
+        </select>
         <form onSubmit={onSubmit}>
           <textarea
             name="userInput"
@@ -76,21 +132,7 @@ export default function Home() {
           />
           <input type="submit" value="Analyze" />
         </form>
-        <select onChange={e => setUserInput(e.target.value)}>
-          {DEMO_INPUT.map(input => (
-            <option key={input.input} value={input.input}>
-              {input.name}
-            </option>
-          ))}
-        </select>
-        <div>
-          {result.toString()}
-        </div>
-        {/* {result.map((statement, index) => (
-          <div key={index} className={styles.result}>
-            {statement}
-          </div>
-        ))} */}
+        {isLoading ? 'Loading...' : result === null ? null : <Result result={result} />}
       </main>
     </div>
   );
