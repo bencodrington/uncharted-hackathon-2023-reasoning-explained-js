@@ -83,11 +83,14 @@ export default function Home() {
             </option>
           ))}
         </select>
-        {result.map((statement, index) => (
+        <div>
+          {result.toString()}
+        </div>
+        {/* {result.map((statement, index) => (
           <div key={index} className={styles.result}>
             {statement}
           </div>
-        ))}
+        ))} */}
       </main>
     </div>
   );
