@@ -116,7 +116,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
 
-  async function onSubmit(event) {
+  async function onSubmit(event, method = 'steps') {
     event.preventDefault();
     try {
       setIsLoading(true);
@@ -125,7 +125,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ userInput: userInput })
+        body: JSON.stringify({ method, userInput: userInput })
       });
 
       const data = await response.json();
@@ -136,7 +136,6 @@ export default function Home() {
       console.log(data.result);
 
       setResult(data.result);
-      setUserInput('');
     } catch (error) {
       // Consider implementing your own error handling logic here
       console.error(error);
@@ -162,7 +161,7 @@ export default function Home() {
             </option>
           ))}
         </select>
-        <form onSubmit={onSubmit}>
+        <form>
           <textarea
             name="userInput"
             placeholder="Enter a paragraph"
@@ -170,7 +169,9 @@ export default function Home() {
             onChange={e => setUserInput(e.target.value)}
             style={{ height: '200px' }}
           />
-          <input type="submit" value="Analyze" />
+          <button onClick={e => onSubmit(e, 'steps')}>One prompt that includes all steps</button>
+          <button onClick={e => onSubmit(e, 'requests')}>One prompt for each step</button>
+          <button onClick={e => onSubmit(e, 'offsets')}>One request, detect offsets</button>
         </form>
         {isLoading ? 'Loading...' : result === null ? null : <Result result={result} />}
       </main>
