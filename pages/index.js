@@ -70,6 +70,11 @@ const DEMO_INPUT = [
 ];
 
 export function Result(props) {
+  if (props.result.threads) {
+    return (<pre>
+      {JSON.stringify(props.result.threads, null, 2)}
+    </pre>)
+  }
   return (
     <div>
       <section>
@@ -171,7 +176,7 @@ export default function Home() {
           />
           <button onClick={e => onSubmit(e, 'steps')}>One prompt that includes all steps</button>
           <button onClick={e => onSubmit(e, 'requests')}>One prompt for each step</button>
-          <button onClick={e => onSubmit(e, 'offsets')}>One request, detect offsets</button>
+          <button onClick={e => onSubmit(e, 'threads')}>Identify threads</button>
         </form>
         {isLoading ? 'Loading...' : result === null ? null : <Result result={result} />}
       </main>
