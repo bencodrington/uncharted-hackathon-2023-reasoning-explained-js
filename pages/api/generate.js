@@ -83,7 +83,7 @@ async function identifyAll(userInput) {
         "Step 2 - List the evidence the author has provided to support the conclusion from step 1. We will refer to these as 'evidence'. " +
         "Step 3 - List any assumptions made to support the conclusion from step 1. We will refer to these as 'assumptions'. " +
         "Step 4 - List any logical fallacies detected in reaching the conclusion. We will refer to these as 'fallacies'. " +
-        ' Format the response as a json object with a hypothesis, property an array of evidence, an array of assumptions, and an array of fallacies.'
+        ' Format the response as a json object with a hypothesis property, an array of evidence, an array of assumptions, and an array of fallacies.'
       // " Format the response as a json object with an array of nodes. Each node should have a 'type' property and a 'description' property, and an 'id' property containing a unique integer identifier." /* Also add an array 'links' to the json object relating the evidence to the hypothesis Each link should have a 'source' property and a 'target' property, each containing the id of a node." */
     },
     { role: 'user', content: userInput }
@@ -92,7 +92,7 @@ async function identifyAll(userInput) {
   const completion = await openai.createChatCompletion({
     model: 'gpt-3.5-turbo',
     messages: msgs,
-    temperature: 0
+    temperature: 0.6
   });
 
   const resultJsonString = completion.data.choices[0].message.content;

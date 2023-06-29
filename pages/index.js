@@ -98,11 +98,11 @@ export function Result(props) {
           {props.result.fallacies.map((fallacy, index) => (
             <li key={index}>
               {fallacy.type}. Relevant excerpts:
-              <ul>
+              {fallacy.relevantExcerpts != null ?? <ul>
                 {fallacy.relevantExcerpts.map((excerpt, index) => (
                   <li key={index}>{excerpt}</li>
                 ))}
-              </ul>
+              </ul>}
             </li>
           ))}
         </ul>
