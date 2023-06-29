@@ -72,6 +72,34 @@ async function identifyFallacies(userInput, hypothesis) {
   return JSON.parse(fallacyJsonString);
 }
 
+async function identifyAll(userInput) {
+  const msgs = [
+    {
+      role: 'system',
+      content:
+        'You are a philosopher specializing in formal argumentation. The user will enter text representing an ' +
+        'argument. In response provide the following: ' +
+        "Step 1 - Identify the main hypothesis of the argument. We will refer to this as 'hypothesis'. " +
+        "Step 2 - List the evidence the author has provided to support the conclusion from step 1. We will refer to these as 'evidence'. " +
+        "Step 3 - List any assumptions made to support the conclusion from step 1. We will refer to these as 'assumptions'. " +
+        "Step 4 - List any logical fallacies detected in reaching the conclusion. We will refer to these as 'fallacies'. " +
+        ' Format the response as a json object with a hypothesis, property an array of evidence, an array of assumptions, and an array of fallacies.'
+      // " Format the response as a json object with an array of nodes. Each node should have a 'type' property and a 'description' property, and an 'id' property containing a unique integer identifier." /* Also add an array 'links' to the json object relating the evidence to the hypothesis Each link should have a 'source' property and a 'target' property, each containing the id of a node." */
+    },
+    { role: 'user', content: userInput }
+  ];
+
+  const completion = await openai.createChatCompletion({
+    model: 'gpt-3.5-turbo',
+    messages: msgs,
+    temperature: 0
+  });
+
+  const resultJsonString = completion.data.choices[0].message.content;
+  console.log('resultJsonString', resultJsonString);
+  return JSON.parse(resultJsonString);
+}
+
 export default async function (req, res) {
   if (!configuration.apiKey) {
     res.status(500).json({
@@ -81,6 +109,8 @@ export default async function (req, res) {
     });
     return;
   }
+
+  const method = req.body.method;
 
   const userInput = req.body.userInput || '';
   if (userInput.trim().length === 0) {
@@ -93,21 +123,31 @@ export default async function (req, res) {
   }
 
   try {
+    if (method === 'steps') {
+      res.status(200).json({
+        result: await identifyAll(userInput)
+      });
+      return;
+    }
     const hypothesis = await identifyHypothesis(userInput);
     console.log('hypothesis', hypothesis);
-    const evidence = await identifyEvidence(userInput, hypothesis);
+    const [evidence, assumptions, fallacies] = await Promise.all([
+      identifyEvidence(userInput, hypothesis),
+      identifyAssumptions(userInput, hypothesis),
+      identifyFallacies(userInput, hypothesis)
+    ]);
     console.log('evidence', evidence);
-    const assumptions = await identifyAssumptions(userInput, hypothesis);
     console.log('assumptions', assumptions);
-    const fallacies = await identifyFallacies(userInput, hypothesis)
     console.log('fallacies', fallacies);
 
-    res.status(200).json({ result: {
-      hypothesis,
-      evidence,
-      assumptions,
-      fallacies
-    } });
+    res.status(200).json({
+      result: {
+        hypothesis,
+        evidence,
+        assumptions,
+        fallacies
+      }
+    });
   } catch (error) {
     // Consider adjusting the error handling logic for your use case
     if (error.response) {

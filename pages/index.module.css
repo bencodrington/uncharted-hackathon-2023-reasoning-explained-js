@@ -52,7 +52,7 @@
   color: #8e8ea0;
   opacity: 1;
 }
-.main input[type="submit"] {
+.main button {
   padding: 12px 0;
   color: #fff;
   background-color: #10a37f;
@@ -60,6 +60,7 @@
   border-radius: 4px;
   text-align: center;
   cursor: pointer;
+  margin-top: 10px;
 }
 .main .result {
   font-weight: bold;
